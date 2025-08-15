@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>What's The Nuts</title>
+</head>
+
+<body>
+    <h1>What's The Nuts?!</h1>
+    <div id="board" style="display: flex; gap: 10px">
+        <div id="board0"></div>
+        <div id="board1"></div>
+        <div id="board2"></div>
+        <div id="board3"></div>
+        <div id="board4"></div>
+    </div>
+    <div id="nuts" style="display: flex; gap: 10px">
+        <div id="nuts0"></div>
+        <div id="nuts1"></div>
+    </div>
+    <button onclick="generateBoard()">Generate Board</button>
+    <input type="text" id="card1">
+    <input type="text" id="card2">
+    <button onClick="checkNuts()">Check Nuts</button>
+    <br>
+    <p id="feedback"></p>
+</body>
+
+<script>
+
+    let nuts;
+
+    function containsList(listOfLists, target) {
+        return listOfLists.some(
+            sublist => JSON.stringify(sublist) === JSON.stringify(target)
+        );
+    }
+
+    function checkNuts() {
+        const card1 = document.getElementById('card1').value
+        const card2 = document.getElementById('card2').value
+
+        fetch(`/cardint?card1=${card1}&card2=${card2}`)
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                if (nuts && (containsList(nuts, [data.card1, data.card2]) || containsList(nuts, [data.card2, data.card1]))) {
+                    document.getElementById('feedback').innerHTML = "Correct"
+                } else {
+                    document.getElementById('feedback').innerHTML = "Incorrect"
+                }
+            })
+    }
+
+    function generateBoard() {
+        nuts = []
+        clearCards()
+        fetch('/generateboard')
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                nuts = data['nuts']
+
+                board = data['board']
+
+                for (let i = 0; i < 5; i++) {
+                    document.getElementById(`board${i}`).innerHTML = `<img
+                        src = "static/assets/${board[i]}.svg">
+                    `
+                }
+
+            })
+    }
+
+    function clearCards() {
+        for (let i = 0; i < 5; i++) {
+            document.getElementById(`board${i}`).innerHTML = `<img
+                        src = "">
+                    `
+        }
+        // document.getElementById(`nuts${0}`).innerHTML = `<img
+        //     src = "">
+        //     `
+        // document.getElementById(`nuts${1}`).innerHTML = `<img
+        //     src = "">
+        //     `
+    }
+
+    // function showNuts() {
+    //     document.getElementById(`nuts${0}`).innerHTML = `<img
+    //         src = "static/assets/${nuts[0]}.svg">
+    //         `
+    //     document.getElementById(`nuts${1}`).innerHTML = `<img
+    //         src = "static/assets/${nuts[1]}.svg">
+    //         `
+    // }
+
+
+</script>
+
+</html>
